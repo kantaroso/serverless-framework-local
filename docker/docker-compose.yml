@@ -1,0 +1,32 @@
+version: '3'
+services:
+  sls-node:
+    build: ./serverless
+    container_name: serverless-framework-node
+    tty: true
+    volumes:
+      - ../app:/var/app
+    ports:
+      - 8082:8081
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+    volumes:
+      - "../data/redis:/data"
+  dynamodb:
+    build: ./dynamodb
+    container_name: dynamodb-local
+    volumes:
+      - ../data/dynamodb:/home/dynamodblocal/data
+    ports:
+      - 8000:8000
+    command: -jar DynamoDBLocal.jar -dbPath ./data
+  dynamodb-admin:
+    build: ./dynamodb-admin
+    container_name: dynamodb-admin
+    ports:
+      - 8001:8001
+    environment:
+      - DYNAMO_ENDPOINT=http://dynamodb:8000
+    command: dynamodb-admin
